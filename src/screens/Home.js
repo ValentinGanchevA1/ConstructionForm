@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import firebase from 'react-native-firebase'
 import { CheckBox } from 'react-native-elements'
+import DatePicker from 'react-native-modal-datetime-picker'
 
 import {
   FlatList,
@@ -20,9 +21,15 @@ class Home extends Component {
     super(props);
 
     this.state = {
+      isDatePickerVisible:false,
+      name:'',
+      location:'',
+      date:'',
+      observationDescription:'',
+      interventionDescription:'',
       juniorYouthGroups:{},
       
-      observationProgram: {HazardIdentification: false, BeaviourObservation:false, NearMiss: false, ImprovementSuggestion: false},
+      observationProgram: {HazardIdentification: false, BehaviourObservation:false, NearMiss: false, ImprovementSuggestion: false},
       intervention:{Completed:false, Required: false, NotApplicable: false},
       finalCheckboxes:["Access/Egress/Walkways", "Attention to Task", "Barricades", "Confined Space", "Defective Equipment", "Energy Isolation",
                         "Environmental", "Ergonomics", "Equipment & Tools", "Excavation", "Falling Objects", "Fire Hazard", "Ground Surface/Condition",
@@ -37,7 +44,6 @@ class Home extends Component {
 
   componentDidMount(){
 
-    firebase.database().ref('/update').push('WE DID IT')
   }
 
   checkOrUncheckObservationProgramBoxes(checkedValue, setOfCheckBoxes, type){
@@ -116,6 +122,82 @@ class Home extends Component {
     return  arrayOfCheckboxes
   }
 
+  sendDataToDb(){
+    let observationType = ''
+    let interventionType= ''
+    let finalCheckBoxList = []
+    let date
+
+    for(i in this.state.observationProgram){
+      if(this.state.observationProgram[i]){
+
+        switch (i) {
+          case "HazardIdentification":
+              observationType = "Hazard Identification"
+            break;
+        
+          case "BehaviourObservation":
+              observationType = "Behaviour Observation"
+            break;
+
+            case "NearMiss":
+              observationType = "Near Miss"
+            break;
+
+            case "ImprovementSuggestion":
+              observationType = "Improvement Suggestion"
+            break;
+
+            default:
+            break;
+        }
+      }
+    }
+
+    for(i in this.state.intervention){
+      if(this.state.intervention[i]){
+        interventionType = i
+      }
+    }
+    
+
+    for(let i = 0; i < this.state.finalCheckboxIndexes.length; i++){
+      
+      finalCheckBoxList.push(this.state.finalCheckboxes[this.state.finalCheckboxIndexes[i]])
+    }
+
+    if(observationType != '' && this.state.name != '' &&  this.state.location != '' && this.state.date != '' && this.state.observationDescription != '' && 
+       interventionType != '' && this.state.interventionDescription !== '' && finalCheckBoxList.length > 0){
+
+        firebase.database().ref('/update').push({observationType:observationType, name: this.state.name, location: this.state.location,
+          date: this.state.date, observationDescription:this.state.observationDescription,
+         interventionType: interventionType, interventionDescription: this.state.interventionDescription, 
+         interventionChecks: finalCheckBoxList})
+
+         this.setState({
+          isDatePickerVisible:false,
+          name:'',
+          location:'',
+          date:'',
+          observationDescription:'',
+          interventionDescription:'',
+          juniorYouthGroups:{},
+          
+          observationProgram: {HazardIdentification: false, BehaviourObservation:false, NearMiss: false, ImprovementSuggestion: false},
+          intervention:{Completed:false, Required: false, NotApplicable: false},
+          finalCheckboxes:["Access/Egress/Walkways", "Attention to Task", "Barricades", "Confined Space", "Defective Equipment", "Energy Isolation",
+                            "Environmental", "Ergonomics", "Equipment & Tools", "Excavation", "Falling Objects", "Fire Hazard", "Ground Surface/Condition",
+                            "Housekeeping", "Ladders/Plartforms,Scaffolds", "Lighting", "Line of Fire", "Mobile Equipment/Vehicles", "Pinch Points",
+                          "PPE Use", "Rigging", "Signage", "Spill Containment", "Working At Heights" ],
+    
+            finalCheckboxIndexes:[]
+         })
+
+    }
+    
+
+  }
+
   render() {
   
     return (
@@ -147,17 +229,17 @@ class Home extends Component {
           </View>
           <View style={styles.rightAlignCheckBoxes}>
           <CheckBox
-            onPress={()=>this.checkOrUncheckObservationProgramBoxes('BeaviourObservation', this.state.observationProgram, 'observationProgram')}
+            onPress={()=>this.checkOrUncheckObservationProgramBoxes('BehaviourObservation', this.state.observationProgram, 'observationProgram')}
             size={10}
             checkedIcon='check'
             containerStyle={styles.checkboxStyle}
             textStyle={styles.checkBoxTextStyle}
             title='Behaviour Observation'
-            checked={this.state.observationProgram.BeaviourObservation}
-            onChange={(checked) => this.checkOrUncheckObservationProgramBoxes('BeaviourObservation',this.state.observationProgram)}
+            checked={this.state.observationProgram.BehaviourObservation}
+            onChange={(checked) => this.checkOrUncheckObservationProgramBoxes('BehaviourObservation',this.state.observationProgram)}
           />
         <CheckBox
-            onPress={()=>this.checkOrUncheckObservationProgramBoxes('ImprovementSuggestion',this.state.observationProgram, 'observationProgram')}
+            onPress={() =>this.props.navigation.navigate("Report")} //this.checkOrUncheckObservationProgramBoxes('ImprovementSuggestion',this.state.observationProgram, 'observationProgram')}
             size={10}
             checkedIcon='check'
             containerStyle={styles.checkboxStyle}
@@ -169,10 +251,21 @@ class Home extends Component {
         </View>
     </View>
 
-          <TextInput multiline = {true} placeholder = {'Name:'} style={styles.textInputName}></TextInput>
-          <TextInput multiline = {true} placeholder = {'Location:'} style={styles.textInputName}></TextInput>
-          <TextInput multiline = {true} placeholder = {'Date: Month/Day/Year'} style={styles.textInputName}></TextInput>
-          <TextInput multiline = {true} placeholder = {'Description of Observation/Hazard Identification:'} style={styles.textInputName}></TextInput>
+          <TextInput value = {this.state.name} onChangeText={(text)=>{this.setState({name:text})}} multiline = {true} placeholder = {'Name:'} style={styles.textInputName}></TextInput>
+          <TextInput value = {this.state.location} onChangeText={(text)=>{this.setState({location:text})}} multiline = {true} placeholder = {'Location:'} style={styles.textInputName}></TextInput>
+          <TouchableOpacity onPress={() => {this.setState({isDatePickerVisible:true})}} style={styles.submitButton}>
+           <Text style={styles.buttonText}>Select Date</Text>
+          </TouchableOpacity>
+          <DatePicker
+                isVisible={this.state.isDatePickerVisible}
+                onConfirm={(date) => this.setState({date:date, isDatePickerVisible: false})
+                }
+                onCancel={() => this.setState({isDatePickerVisible: false})}
+                titleIOS='Select your birthday'
+              />
+          <TextInput editable={false} placeholder = "Date" style={styles.textInputName}>{this.state.date.toString().split(" ").slice(0, 4).join(" ")}</TextInput>
+          {/* <TextInput onFocus={()=>this.setState({isDatePickerVisible:true})} onChangeText={(text)=>{this.setState({date:text})}} multiline = {true} placeholder = {'Date: Month/Day/Year'} style={styles.textInputName}></TextInput> */}
+          <TextInput value = {this.state.observationDescription} onChangeText={(text)=>{this.setState({observationDescription:text})}} multiline = {true} placeholder = {'Description of Observation/Hazard Identification:'} style={styles.textInputName}></TextInput>
           <Text style = {styles.interventionText}>Intervention</Text>
           <View style={styles.checkBoxView}>
 
@@ -207,11 +300,11 @@ class Home extends Component {
             onChange={(checked) => console.log('I am checked', checked)}
           />
           </View>
-          <TextInput multiline = {true} style={styles.textInputMultiLine}></TextInput>
+          <TextInput value = {this.state.interventionDescription} onChangeText={(text)=>{this.setState({interventionDescription:text})}}  multiline = {true} style={styles.textInputMultiLine}></TextInput>
           <View style={styles.finalCheckboxes}>
             {this.displayFinalCheckboxes()}
           </View>
-        <TouchableOpacity style={styles.submitButton}>
+        <TouchableOpacity onPress={() => {this.sendDataToDb()}} style={styles.submitButton}>
         <Text style={styles.buttonText}>Submit</Text>
           </TouchableOpacity>
         <Text style = {styles.footerText}>Thank you for doing your part to maintain a safe work environment!</Text>
