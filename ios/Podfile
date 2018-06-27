@@ -10,8 +10,9 @@ target 'BirdConstructionApp' do
 
 pod 'Firebase/Core'
 pod 'Firebase/Database'
+pod 'Firebase/Auth'
 
-  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+  #pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
   target 'BirdConstructionAppTests' do
     inherit! :search_paths

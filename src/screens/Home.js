@@ -43,7 +43,14 @@ class Home extends Component {
   }
 
   componentDidMount(){
-
+    firebase.auth().signInAndRetrieveDataWithEmailAndPassword("jims@mail.com","password").then((value) => {
+      console.log(value);
+      
+    }).catch((error) => {
+      console.log(error);
+      
+    })
+    //firebase.auth.sign
   }
 
   checkOrUncheckObservationProgramBoxes(checkedValue, setOfCheckBoxes, type){
