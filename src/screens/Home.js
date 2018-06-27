@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import firebase from 'react-native-firebase'
 import { CheckBox } from 'react-native-elements'
 import DatePicker from 'react-native-modal-datetime-picker'
-
+import Login from './Login'
 import {
   FlatList,
   Text,
@@ -12,15 +12,19 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
-  Image
+  Image,
+  ActivityIndicator
 } from 'react-native'
 
 class Home extends Component {
 
   constructor(props) {
     super(props);
-
+    this.unsubscriber = null;
     this.state = {
+      admins:[],
+      isAdmin: false,
+      user: null,
       isDatePickerVisible:false,
       name:'',
       location:'',
@@ -36,21 +40,46 @@ class Home extends Component {
                         "Housekeeping", "Ladders/Plartforms,Scaffolds", "Lighting", "Line of Fire", "Mobile Equipment/Vehicles", "Pinch Points",
                       "PPE Use", "Rigging", "Signage", "Spill Containment", "Working At Heights" ],
 
-        finalCheckboxIndexes:[]
+        finalCheckboxIndexes:[],
+        showActivityIndicator:true
     };
 
     
   }
 
   componentDidMount(){
-    firebase.auth().signInAndRetrieveDataWithEmailAndPassword("jims@mail.com","password").then((value) => {
-      console.log(value);
-      
-    }).catch((error) => {
-      console.log(error);
+
+    this.unsubscriber = firebase.auth().onAuthStateChanged((user) => {
+      this.setState({showActivityIndicator:false,  user });
+      console.log(user);
       
     })
-    //firebase.auth.sign
+
+    firebase.database().ref('/admins/').once('value').then((promise)=>{
+      console.log(promise.val());
+     // console.log(user);
+      
+      this.setState({
+        admins: promise.val()
+      })
+    }).catch((error) => {console.log(error)})
+
+    // firebase.auth().signInAndRetrieveDataWithEmailAndPassword("ji@mail.com","password").then((value) => {
+    //   console.log(value);
+      
+    // }).catch((error) => {
+    //   console.log(error);
+      
+    // })
+
+    //firebase.auth().signOut()
+ 
+  }
+
+  componentWillUnmount(){
+    if (this.unsubscriber) {
+      this.unsubscriber();
+    }
   }
 
   checkOrUncheckObservationProgramBoxes(checkedValue, setOfCheckBoxes, type){
@@ -199,13 +228,35 @@ class Home extends Component {
     
             finalCheckboxIndexes:[]
          })
-
     }
     
+  }
 
+  showReportToAdmin(){
+  
+    if(this.state.admins.indexOf(this.state.user._user.email) > -1){
+      return (<TouchableOpacity onPress={() => {this.props.navigation.navigate("Report")}}>
+              <Text style={styles.signOutAndReportText}>Report</Text>
+            </TouchableOpacity>)
+    }
+  }
+
+  showChosenDate(){
+    if(this.state.date !== ''){
+     return  <TextInput editable={false} style={styles.textInputDate}>{this.state.date.toString().split(" ").slice(0, 4).join(" ")}</TextInput>
+    }
   }
 
   render() {
+
+    if(this.state.showActivityIndicator){
+      return <ActivityIndicator/>
+    }
+
+    if (!this.state.user) {
+      return <Login />;
+    }
+    
   
     return (
       <ScrollView contentContainerStyle={{ alignItems : 'center'}} style={styles.container}>
@@ -246,7 +297,7 @@ class Home extends Component {
             onChange={(checked) => this.checkOrUncheckObservationProgramBoxes('BehaviourObservation',this.state.observationProgram)}
           />
         <CheckBox
-            onPress={() =>this.props.navigation.navigate("Report")} //this.checkOrUncheckObservationProgramBoxes('ImprovementSuggestion',this.state.observationProgram, 'observationProgram')}
+            onPress={() =>this.checkOrUncheckObservationProgramBoxes('ImprovementSuggestion',this.state.observationProgram, 'observationProgram')}
             size={10}
             checkedIcon='check'
             containerStyle={styles.checkboxStyle}
@@ -263,6 +314,7 @@ class Home extends Component {
           <TouchableOpacity onPress={() => {this.setState({isDatePickerVisible:true})}} style={styles.submitButton}>
            <Text style={styles.buttonText}>Select Date</Text>
           </TouchableOpacity>
+          {this.showChosenDate()}
           <DatePicker
                 isVisible={this.state.isDatePickerVisible}
                 onConfirm={(date) => this.setState({date:date, isDatePickerVisible: false})
@@ -270,8 +322,6 @@ class Home extends Component {
                 onCancel={() => this.setState({isDatePickerVisible: false})}
                 titleIOS='Select your birthday'
               />
-          <TextInput editable={false} placeholder = "Date" style={styles.textInputName}>{this.state.date.toString().split(" ").slice(0, 4).join(" ")}</TextInput>
-          {/* <TextInput onFocus={()=>this.setState({isDatePickerVisible:true})} onChangeText={(text)=>{this.setState({date:text})}} multiline = {true} placeholder = {'Date: Month/Day/Year'} style={styles.textInputName}></TextInput> */}
           <TextInput value = {this.state.observationDescription} onChangeText={(text)=>{this.setState({observationDescription:text})}} multiline = {true} placeholder = {'Description of Observation/Hazard Identification:'} style={styles.textInputName}></TextInput>
           <Text style = {styles.interventionText}>Intervention</Text>
           <View style={styles.checkBoxView}>
@@ -315,8 +365,14 @@ class Home extends Component {
         <Text style={styles.buttonText}>Submit</Text>
           </TouchableOpacity>
         <Text style = {styles.footerText}>Thank you for doing your part to maintain a safe work environment!</Text>
-      
+        <View style={styles.footerContainer}>
+        <TouchableOpacity onPress={()=>{firebase.auth().signOut()}}>
+          <Text style={styles.signOutAndReportText}>Sign Out</Text>
+        </TouchableOpacity>
+          {this.showReportToAdmin()}
+        </View>
       </ScrollView>
+      
     )
   }
 }
@@ -327,6 +383,14 @@ const styles = StyleSheet.create({
     backgroundColor:'white',
     padding: 5,
   },
+  footerContainer:{
+    flexDirection: 'row',
+    marginBottom: 10,
+    
+  },
+  signOutAndReportText:{
+    margin:10
+  },
   companyLogo:{
     marginBottom:10
   },
@@ -335,11 +399,7 @@ const styles = StyleSheet.create({
   },
   finalCheckboxes:{
     flexDirection:'column',
-    flexWrap:'wrap',
-    width:400,
-    margin:15,
-    height:300,
-    alignItems:'flex-start'
+    alignSelf:'flex-start',
   },
   submitButton:{
     alignItems:'center',
@@ -348,6 +408,7 @@ const styles = StyleSheet.create({
     backgroundColor:'#195942',
     width:80,
     height:30,
+    marginTop:10
   },
   leftAlignCheckBoxes:{
     flexDirection:'column'
@@ -377,7 +438,7 @@ const styles = StyleSheet.create({
     padding:5,
     marginHorizontal:0,
     borderWidth:0,
-    marginRight:10
+    marginRight:5
   },
   checkBoxView:{
     flexDirection:'row'
@@ -401,6 +462,14 @@ const styles = StyleSheet.create({
     width:300,
     marginVertical:10,
     padding:5
+  },
+
+  textInputDate:{
+    alignItems:'center',
+    justifyContent:'center',
+    marginVertical:10,
+    padding:5,
+    alignItems:'center'
   },
   textInputMultiLine:{
     borderColor:'grey',
