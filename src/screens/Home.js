@@ -193,6 +193,22 @@ class Home extends Component {
     for(i in this.state.intervention){
       if(this.state.intervention[i]){
         interventionType = i
+        switch (i) {
+          case "Completed":
+          interventionType = "Completed"
+            break;
+        
+          case "Required":
+          interventionType = "Required"
+            break;
+
+            case "NotApplicable":
+            interventionType = "Not Applicable"
+            break;
+  
+            default:
+            break;
+        }
       }
     }
     
@@ -206,7 +222,7 @@ class Home extends Component {
        interventionType != '' && this.state.interventionDescription !== '' && finalCheckBoxList.length > 0){
 
         firebase.database().ref('/update').push({observationType:observationType, name: this.state.name, location: this.state.location,
-          date: this.state.date, observationDescription:this.state.observationDescription,
+          date: this.state.date, observationDescription: this.state.observationDescription,
          interventionType: interventionType, interventionDescription: this.state.interventionDescription, 
          interventionChecks: finalCheckBoxList})
 
