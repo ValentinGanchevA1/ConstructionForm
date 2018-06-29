@@ -54,8 +54,8 @@ class Login extends Component {
         return(
             <View style = {styles.container}>
              <Image style={styles.companyLogo} source={require('../screens/bird-construction-logo.png')}/>
-             <TextInput autoCapitalize="none" style={styles.textInputName} onChangeText={(text)=>{this.setState({username:text})}} placeholder = "Username"></TextInput>
-             <TextInput autoCapitalize="none" style={styles.textInputName} onChangeText={(text)=>{this.setState({password:text})}} placeholder = "Password"></TextInput>
+             <TextInput underlineColorAndroid="transparent" autoCapitalize="none" style={styles.textInputName} onChangeText={(text)=>{this.setState({username:text})}} placeholder = "Username"></TextInput>
+             <TextInput underlineColorAndroid="transparent" autoCapitalize="none" style={styles.textInputName} onChangeText={(text)=>{this.setState({password:text})}} placeholder = "Password"></TextInput>
              <Text style={styles.errorText}>{this.state.errorText}</Text>
              <TouchableOpacity onPress ={() => {this.signIn()}} style={styles.submitButton}>
                 <Text style={styles.buttonText}>Submit</Text>
@@ -70,6 +70,9 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor:'white',
       padding: 5,
+    },
+    companyLogo:{
+        marginTop:10
     },
     textInputName:{
         borderColor:'grey',

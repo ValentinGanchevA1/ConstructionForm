@@ -325,8 +325,8 @@ class Home extends Component {
         </View>
     </View>
 
-          <TextInput value = {this.state.name} onChangeText={(text)=>{this.setState({name:text})}} multiline = {true} placeholder = {'Name:'} style={styles.textInputName}></TextInput>
-          <TextInput value = {this.state.location} onChangeText={(text)=>{this.setState({location:text})}} multiline = {true} placeholder = {'Location:'} style={styles.textInputName}></TextInput>
+          <TextInput underlineColorAndroid="transparent" value = {this.state.name} onChangeText={(text)=>{this.setState({name:text})}} multiline = {true} placeholder = {'Name:'} style={styles.textInputName}></TextInput>
+          <TextInput underlineColorAndroid="transparent" value = {this.state.location} onChangeText={(text)=>{this.setState({location:text})}} multiline = {true} placeholder = {'Location:'} style={styles.textInputName}></TextInput>
           <TouchableOpacity onPress={() => {this.setState({isDatePickerVisible:true})}} style={styles.submitButton}>
            <Text style={styles.buttonText}>Select Date</Text>
           </TouchableOpacity>
@@ -338,7 +338,7 @@ class Home extends Component {
                 onCancel={() => this.setState({isDatePickerVisible: false})}
                 titleIOS='Select your birthday'
               />
-          <TextInput value = {this.state.observationDescription} onChangeText={(text)=>{this.setState({observationDescription:text})}} multiline = {true} placeholder = {'Description of Observation/Hazard Identification:'} style={styles.textInputName}></TextInput>
+          <TextInput underlineColorAndroid="transparent" value = {this.state.observationDescription} onChangeText={(text)=>{this.setState({observationDescription:text})}} multiline = {true} placeholder = {'Description of Observation/Hazard Identification:'} style={styles.textInputName}></TextInput>
           <Text style = {styles.interventionText}>Intervention</Text>
           <View style={styles.checkBoxView}>
 
@@ -373,7 +373,7 @@ class Home extends Component {
             onChange={(checked) => console.log('I am checked', checked)}
           />
           </View>
-          <TextInput value = {this.state.interventionDescription} onChangeText={(text)=>{this.setState({interventionDescription:text})}}  multiline = {true} style={styles.textInputMultiLine}></TextInput>
+          <TextInput underlineColorAndroid="transparent" value = {this.state.interventionDescription} onChangeText={(text)=>{this.setState({interventionDescription:text})}}  multiline = {true} style={styles.textInputMultiLine}></TextInput>
           <View style={styles.finalCheckboxes}>
             {this.displayFinalCheckboxes()}
           </View>
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     flexDirection:'row'
   },
   checkBoxTextStyle:{
-    fontSize:12
+    fontSize:15
   },
   checkboxStyle:{
     backgroundColor:'white',
@@ -477,7 +477,8 @@ const styles = StyleSheet.create({
     borderWidth:1,
     width:300,
     marginVertical:10,
-    padding:5
+    padding:5,
+    height:50
   },
 
   textInputDate:{
