@@ -101,8 +101,8 @@ android {
         applicationId "com.birdconstructionapp"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode 5
+        versionName "5"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -115,6 +115,8 @@ android {
             include "armeabi-v7a", "x86"
         }
     }
+
+
     buildTypes {
         release {
             minifyEnabled enableProguardInReleaseBuilds
@@ -141,16 +143,21 @@ dependencies {
     implementation(project(':react-native-firebase')) {
         transitive = false
 
-    // Firebase dependencies
-    implementation "com.google.android.gms:play-services-base:15.0.0"
-    implementation "com.google.firebase:firebase-core:15.0.2"
-        implementation "com.google.firebase:firebase-auth:15.1.0"
-        implementation "com.google.firebase:firebase-database:15.0.0"
+
     }
+
+
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:23.0.1"
+    implementation "com.google.android.gms:play-services-base:15.0.0"
     implementation "com.facebook.react:react-native:+"  // From node_modules
+
+    // Firebase dependencies
+
+    implementation "com.google.firebase:firebase-core:15.0.2"
+    implementation "com.google.firebase:firebase-auth:15.1.0"
+    implementation "com.google.firebase:firebase-database:15.0.0"
 
 }
 

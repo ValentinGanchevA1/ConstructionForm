@@ -269,9 +269,9 @@ class Home extends Component {
       return <ActivityIndicator/>
     }
 
-    if (!this.state.user) {
-      return <Login />;
-    }
+    // if (!this.state.user) {
+    //   return <Login />;
+    // }
     
   
     return (
@@ -408,7 +408,8 @@ const styles = StyleSheet.create({
     margin:10
   },
   companyLogo:{
-    marginBottom:10
+    marginBottom:10,
+    marginTop:10
   },
   buttonText:{
     color:'white'
@@ -446,7 +447,7 @@ const styles = StyleSheet.create({
     flexDirection:'row'
   },
   checkBoxTextStyle:{
-    fontSize:15
+    fontSize:12
   },
   checkboxStyle:{
     backgroundColor:'white',
@@ -461,10 +462,6 @@ const styles = StyleSheet.create({
   },
   location:{
     fontSize:17
-  },
-  animators:{
-    fontSize:15,
-    color:'#8E8E93'
   },
   groupContainer:{
     borderBottomWidth:1,

@@ -24,8 +24,6 @@ class Login extends Component {
           password:'',
           errorText:''
         };
-    
-        
       }
 
    
@@ -38,7 +36,7 @@ class Login extends Component {
           }else{
           firebase.auth().signInAndRetrieveDataWithEmailAndPassword(this.state.username,this.state.password).then((value) => {
             console.log(value);
-            
+            this.props.navigation.navigate("Home")
             }).catch((error) => {
             console.log(error);
 
