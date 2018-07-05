@@ -51,29 +51,23 @@ class Home extends Component {
 
     this.unsubscriber = firebase.auth().onAuthStateChanged((user) => {
       this.setState({showActivityIndicator:false,  user });
-      console.log(user);
+        if(user){
+
+        }else{
+          this.props.navigation.goBack()
+        }
+   
       
     })
 
     firebase.database().ref('/admins/').once('value').then((promise)=>{
-      console.log(promise.val());
-     // console.log(user);
-      
+
       this.setState({
         admins: promise.val()
       })
+
     }).catch((error) => {console.log(error)})
 
-    // firebase.auth().signInAndRetrieveDataWithEmailAndPassword("ji@mail.com","password").then((value) => {
-    //   console.log(value);
-      
-    // }).catch((error) => {
-    //   console.log(error);
-      
-    // })
-
-    //firebase.auth().signOut()
- 
   }
 
   componentWillUnmount(){
@@ -249,11 +243,12 @@ class Home extends Component {
   }
 
   showReportToAdmin(){
-  
-    if(this.state.admins.indexOf(this.state.user._user.email) > -1){
-      return (<TouchableOpacity onPress={() => {this.props.navigation.navigate("Report")}}>
-              <Text style={styles.signOutAndReportText}>Report</Text>
-            </TouchableOpacity>)
+    if(this.state.user){
+      if(this.state.admins.indexOf(this.state.user._user.email) > -1){
+        return (<TouchableOpacity onPress={() => {this.props.navigation.navigate("Report")}}>
+                <Text style={styles.signOutAndReportText}>Report</Text>
+              </TouchableOpacity>)
+      }
     }
   }
 
@@ -265,12 +260,19 @@ class Home extends Component {
 
   render() {
 
+    
+
+    // if(!this.state.user){
+    //   //this.props.navigation.goBack()
+    // }
+
     if(this.state.showActivityIndicator){
       return <ActivityIndicator/>
     }
 
     // if (!this.state.user) {
-    //   return <Login />;
+    //   this.props.navigation.goBack()
+    //   //return <Login />;
     // }
     
   
@@ -382,7 +384,10 @@ class Home extends Component {
           </TouchableOpacity>
         <Text style = {styles.footerText}>Thank you for doing your part to maintain a safe work environment!</Text>
         <View style={styles.footerContainer}>
-        <TouchableOpacity onPress={()=>{firebase.auth().signOut()}}>
+        <TouchableOpacity onPress={()=>{
+          //this.props.navigation.goBack()
+          firebase.auth().signOut()
+          }}>
           <Text style={styles.signOutAndReportText}>Sign Out</Text>
         </TouchableOpacity>
           {this.showReportToAdmin()}
